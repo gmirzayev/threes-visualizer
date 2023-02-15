@@ -19,6 +19,8 @@ const dataArray = new Uint8Array(bufferLength);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 125, 1, 0.1, 1000 );
+camera.position.z = 5;
+// camera.position.x = 2;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( 600, 600 );
@@ -51,19 +53,34 @@ let faceHash = {
 }
 for(let side in faceHash) {
   if(side === 'x') {
-    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    const geometry = new THREE.BoxGeometry( 1, 0.25, 0.25 );
     for(let direction of faceHash[side]) {
+      //create 9 cubes per side
       for(let y = -1; y < 2; y++) { 
         for(let z = -1; z < 2; z++) {
+          const cubeGroup = new THREE.Group();
+          
           const material = new THREE.MeshStandardMaterial( { color: 'white' } );
           material.roughness = 0.5;
-          const mesh = new THREE.Mesh( geometry, material );
+          // const mesh = new THREE.Mesh( geometry, material );
           const xCoordinate = direction;
           const yCoordinate = y * 1.1;
           const zCoordinate = z * 1.1;
-          mesh.position.set(xCoordinate, yCoordinate, zCoordinate);
-          cubeArray.push({mesh: mesh, scaleAxis: 'x', direction: direction, position: new THREE.Vector3(xCoordinate, yCoordinate, zCoordinate)});
-          spinningCollection.add( mesh );
+          //create 16 "cubes" per cube
+          for(let a = 0; a < 4; a++) {
+            for(let b = 0; b < 4; b++) {
+              const mesh = new THREE.Mesh( geometry, material );
+              mesh.position.set(direction, yCoordinate * 0.25 * a, zCoordinate * 0.25 * b);
+              console.log(mesh.position);
+              if(y == 0 || z == 0) {
+                cubeGroup.add(mesh);
+              }
+            }
+          }
+          cubeGroup.position.set(xCoordinate, yCoordinate, zCoordinate);
+          // mesh.position.set(xCoordinate, yCoordinate, zCoordinate);
+          cubeArray.push({mesh: cubeGroup, scaleAxis: 'x', direction: direction, position: new THREE.Vector3(xCoordinate, yCoordinate, zCoordinate)});
+          spinningCollection.add( cubeGroup );
         }
       }
     }
@@ -132,8 +149,7 @@ scene.add( light1 );
 const directionalLightAbove = new THREE.DirectionalLight( 0xffffff, 0.5 );
 scene.add(directionalLightAbove);
 
-camera.position.z = 5;
-
+console.log(cubeArray);
 function animate() {
   if (audioPlayer.duration > 0 && !audioPlayer.paused) {
     analyser.getByteFrequencyData(dataArray);
