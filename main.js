@@ -19,7 +19,7 @@ const dataArray = new Uint8Array(bufferLength);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 125, 1, 0.1, 1000 );
 camera.position.x = 2;
-camera.position.z = 7;
+camera.position.z = 5;
 camera.position.y = 4;
 // camera.position.x = 2;
 
@@ -79,7 +79,7 @@ for(let side in faceHash) {
             }
           }
           cubeGroup.position.set(xCoordinate, yCoordinate, zCoordinate);
-          cubeArray.push({mesh: cubeGroup, scaleAxis: 'x', direction: direction, 'x':xCoordinate, 'y':yCoordinate, 'z':zCoordinate});
+          cubeArray.push({group: cubeGroup, scaleAxis: 'x', direction: direction, 'x':xCoordinate, 'y':yCoordinate, 'z':zCoordinate});
           spinningCollection.add( cubeGroup );
         }
       }
@@ -143,24 +143,25 @@ function animate() {
   if (audioPlayer.duration > 0 && !audioPlayer.paused) {
     analyser.getByteFrequencyData(dataArray);
     for (let i = 0; i < cubeArray.length; i++) {
-      const scaleValue = dataArray[i];
+      const scaleValue = dataArray[i]/100;
       const cubeElement = cubeArray[i];
       
       switch(cubeElement.scaleAxis) {
         case 'x':
-          cubeElement.mesh.scale.x = (scaleValue/100) || 0.1;
-          console.log("x position",cubeElement['x']);
-          console.log(cubeArray[i]);
-          cubeElement.mesh.position.x = cubeElement['x']+((scaleValue/100)/2*cubeElement.direction);
+          cubeElement.group.scale.x = scaleValue || 0.1;
+          console.log(cubeElement);
+          cubeElement.group.position.x = (Math.round(scaleValue/2*cubeElement.direction*100)/100,1,1);
+          // cubeElement.translateX = 100;
+
           break;
-        case 'y':
-          cubeElement.mesh.scale.y = (scaleValue/100) || 0.1;
-          cubeElement.mesh.position.y = cubeElement.position.y+((scaleValue/100)/2*cubeElement.direction);
-          break;
-        case 'z':
-          cubeElement.mesh.scale.z = (scaleValue/100) || 0.1;
-          cubeElement.mesh.position.z = cubeElement.position.z+((scaleValue/100)/2*cubeElement.direction);
-          break;
+        // case 'y':
+        //   cubeElement.mesh.scale.y = (scaleValue/100) || 0.1;
+        //   cubeElement.mesh.position.y = cubeElement.position.y+((scaleValue/100)/2*cubeElement.direction);
+        //   break;
+        // case 'z':
+        //   cubeElement.mesh.scale.z = (scaleValue/100) || 0.1;
+        //   cubeElement.mesh.position.z = cubeElement.position.z+((scaleValue/100)/2*cubeElement.direction);
+        //   break;
         }
     }
   }
